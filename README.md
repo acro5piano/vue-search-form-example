@@ -1,2 +1,4 @@
-# vue-search-form-exapmle
-search form example with Vue.js 
+# vue-search-form-example
+search form example with Vue.js
+
+![](./screenshot.jpg)
