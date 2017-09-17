@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Search Articles</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <style>
+  body {
+    margin-top: 20px;
+    background: #f9f9f9;
+    line-height: 1.5;
+    color: #444;
+  }
+  .logo {
+    text-decoration: none;
+    color: #555;
+  }
+  .u-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 3px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.28);
+  }
+  .search-form-label {
+    line-height: 36px;
+  }
+  .search-submit {
+    margin-top: 24px;
+    text-align: center;
+  }
+  .duration-indicator {
+    color: #888;
+  }
+  .duration-indicator-date {
+    margin: 0 4px;
+    color: #444;
+  }
+  .article-created-at {
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .article-content {
+    margin-bottom: 0;
+  }
+
+  .button-primary {
+    border-radius: 24px;
+  }
+
+  </style>
+
+</head>
+<body>
+  <div class="container">
+    <div id="app">
+      <h1>
+        <a class="logo" :href="homePath">Search Articles</a>
+      </h1>
+      <div class="u-card">
+        <div class="row">
+          <div class="one column search-form-label">
+            From
+          </div>
+          <div class="five columns">
+            <input type="text" autofocus v-model="startOn" @keydown.enter="search">
+          </div>
+          <div class="one column search-form-label">
+            To
+          </div>
+          <div class="five columns">
+            <input type="text" v-model="endOn" @keydown.enter="search">
+          </div>
+        </div>
+      </div>
+      <div class="search-submit">
+        <button class="button-primary" @click="search">search</button>
+      </div>
+      <p class="duration-indicator" v-if="hasSearchResults">
+        Showing articles
+        from <span class="duration-indicator-date">{{ initialStartOn }}</span>
+        to <span class="duration-indicator-date">{{ initialEndOn }}</span>
+      </p>
+      <p v-else>Please select the date of articles above.</p>
+
+      <div class="u-card" v-for="article in articles" v-if="hasSearchResults">
+        <div class="row">
+          <div class="three columns">
+            <img :src="article.thumbnail" class="u-full-width">
+          </div>
+          <div class="nine columns">
+            <h2>{{ article.title }}</h2>
+            <p class="article-created-at">{{ article.author}} | {{ article.createdAt | formatDate }}</p>
+            <p class="article-content">{{ article.content }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.4/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.js"></script>
+<script>
+const app = new Vue({
+  el: '#app',
+  data () {
+    const article = () => {
+      return {
+        title: faker.lorem.words(),
+        author: faker.name.findName(),
+        thumbnail: faker.image.image(),
+        createdAt: faker.date.between('2017-07-01', '2017-09-30'),
+        content: faker.lorem.paragraph() + '...'
+      }
+    }
+    return {
+      startOn: '',
+      endOn: '',
+      articles: [article(), article(), article(), article(), article(), article(), article(), article(), article(), article(), article(), article()]
+    }
+  },
+  mounted () {
+    this.startOn = this.initialStartOn
+    this.endOn = this.initialEndOn
+  },
+  methods: {
+    search () {
+      location.href = this.homePath + "?startOn=" + this.startOn + "&endOn=" + this.endOn
+    },
+  },
+  computed: {
+    homePath () {
+      return location.href.replace(/\?.+$/, '')
+    },
+    initialStartOn () {
+      const startOnExp = location.href.match(/startOn=(.+)&/)
+      return startOnExp ? startOnExp[1] : '2017-07-01'
+    },
+    initialEndOn () {
+      const endOnExp = location.href.match(/endOn=(.+)$/)
+      return endOnExp ? endOnExp[1] :  '2017-09-30'
+    },
+    hasSearchResults () {
+      return location.href.match(/startOn|endOn/)
+    }
+  },
+  filters: {
+    formatDate (d) {
+      return d.toISOString().replace(/T.+$/, '')
+    }
+  }
+})
+</script>
+</html>
